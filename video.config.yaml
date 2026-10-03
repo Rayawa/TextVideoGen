@@ -1,0 +1,122 @@
+version: 2
+workspace:
+  name: VideoTextGen
+  harness: opencode
+  environmentDir: .videoenv
+  codeDirs: [bin, scripts, src, config, schemas, prompts, .agents, .opencode, vendor]
+  projectsDir: projects
+  finalOutputDir: /Users/raychen/Movies/VideoTextGen
+  oneVideoPerProject: true
+
+workflow:
+  default: [script, voice, alignment, creative-treatment, director, storyboard, assets, render, compose, qa, review, revision, deliver]
+
+models:
+  default: openai/gpt-5.6-sol
+  economical: deepseek/deepseek-v4-flash
+  routing:
+    supervisor: openai/gpt-5.6-sol
+    creative-treatment: openai/gpt-5.6-sol
+    director: openai/gpt-5.6-sol
+    revision: openai/gpt-5.6-sol
+    final-review: openai/gpt-5.6-sol
+    qa: deepseek/deepseek-v4-flash
+    utility: deepseek/deepseek-v4-flash
+  policy:
+    verifyEconomicalOutputs: true
+    economicalTasks: [deterministic-extraction, schema-formatting, file-inventory, metadata, first-pass-qa]
+    requireGpt: [workflow-control, creative-direction, revision-impact, provider-generation-decisions, final-review-gate]
+
+projects:
+  layout:
+    source: projects/{projectId}/source
+    plan: projects/{projectId}/plan
+    scenes: projects/{projectId}/scenes
+    work: projects/{projectId}/work
+    qa: projects/{projectId}/qa
+    logs: projects/{projectId}/logs
+    deliveries: projects/{projectId}/deliveries
+  structuredArtifacts: true
+  preserveProvenance: true
+  isolateAssetsByScene: true
+
+creative:
+  productionProfile: semantic-motion
+  proposalCount: 3
+  autoSelectRecommendedWhenUndecided: true
+  defaultStyle: modern-editorial-motion
+  technologyPreference: [html-svg, existing-assets, ai-image, image-motion, generated-video]
+
+storyboard:
+  sceneModes: [html, image, hybrid, broll]
+  requireTextRefs: true
+  requireAssetRefsForHybrid: true
+  forbidUnusedGeneratedImages: true
+
+motion:
+  requireRelationshipImplementation: true
+  requireMotionFrameLayoutChecks: true
+  requireSemanticReview: true
+  maxConsecutiveSameSignature: 1
+  defaultTransitionMs: 500
+  forbidUnplannedHardCuts: true
+  requireStableFinalFrame: true
+
+revision:
+  strategy: minimal-recompute
+  requireImpactPlan: true
+  voiceChangeRequiresAlignment: true
+
+logging:
+  projectEvents: projects/{projectId}/logs/events.jsonl
+  runtimeLogs: .videoenv/logs
+  requiredEvents: [stage-started, stage-completed, stage-failed, provider-called, review-decision, delivered]
+
+renders:
+  defaultFps: 30
+  rapidMotionFps: 60
+  overwriteExisting: false
+  stagingLayout: projects/{projectId}/work/renders/{runId}
+  finalOutputLayout: /Users/raychen/Movies/VideoTextGen/{projectId}/{version}.mp4
+  keepDeliveredVideoInProject: false
+
+providers:
+  voice:
+    provider: voicebox
+    transport: mcp
+    enabled: true
+    connection: http://127.0.0.1:17493/mcp
+    modelsDir: .videoenv/voicebox/models
+    dataDir: .videoenv/voicebox/data
+  alignment:
+    provider: whisperx
+    command: bin/whisperx
+    device: cpu
+    computeType: int8
+    modelsDir: .videoenv/models/whisperx
+  image:
+    provider: opencode-image-generation
+    tool: image_generate
+    skill: jacky-illustration
+    outputLayout: projects/{projectId}/scenes/{sceneId}/assets
+  htmlMotion:
+    defaultProfile: semantic-motion
+    profiles:
+      semantic-motion:
+        productionPrompt: prompts/motion-production.md
+        contractSchema: schemas/motion-contract.schema.json
+        validationCommand: bin/pnpm-video motion:content-check
+        rendererModule: scripts/lib/render-html-scenes.mjs
+      legacy-srt:
+        skill: jacky-motion2-0-srt
+    provider: jacky-motion2-0-srt
+    skill: jacky-motion2-0-srt
+    consumeSceneAssetManifest: true
+
+runtime:
+  versions: config/runtime.lock.json
+  nodeDir: .videoenv/node
+  pythonDir: .videoenv/python
+  playwrightBrowsersDir: .videoenv/playwright-browsers
+  ffmpegCommand: .videoenv/bin/ffmpeg
+  ffprobeCommand: .videoenv/bin/ffprobe

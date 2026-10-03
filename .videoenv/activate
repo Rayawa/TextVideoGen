@@ -1,0 +1,94 @@
+# Source this file from zsh/bash, or use ./bin/opencode-video.
+if [ -z "${VIDEOTEXTGEN_ROOT:-}" ]; then
+  if [ -n "${ZSH_VERSION:-}" ]; then
+    _VIDEOTEXTGEN_ACTIVATE_FILE="${(%):-%N}"
+  else
+    _VIDEOTEXTGEN_ACTIVATE_FILE="${BASH_SOURCE[0]}"
+  fi
+  export VIDEOTEXTGEN_ROOT="$(CDPATH= cd -- "$(dirname -- "$_VIDEOTEXTGEN_ACTIVATE_FILE")/.." && pwd)"
+fi
+export VIDEOTEXTGEN_ENV="$VIDEOTEXTGEN_ROOT/.videoenv"
+
+mkdir -p \
+  "$VIDEOTEXTGEN_ENV/bin" \
+  "$VIDEOTEXTGEN_ENV/xdg/config" \
+  "$VIDEOTEXTGEN_ENV/xdg/cache" \
+  "$VIDEOTEXTGEN_ENV/xdg/data" \
+  "$VIDEOTEXTGEN_ENV/xdg/state" \
+  "$VIDEOTEXTGEN_ENV/cache/npm" \
+  "$VIDEOTEXTGEN_ENV/cache/pip" \
+  "$VIDEOTEXTGEN_ENV/cache/uv" \
+  "$VIDEOTEXTGEN_ENV/cache/bun" \
+  "$VIDEOTEXTGEN_ENV/cache/huggingface" \
+  "$VIDEOTEXTGEN_ENV/cache/torch" \
+  "$VIDEOTEXTGEN_ENV/cache/matplotlib" \
+  "$VIDEOTEXTGEN_ENV/cache/numba" \
+  "$VIDEOTEXTGEN_ENV/cache/downloads" \
+  "$VIDEOTEXTGEN_ENV/cache/pnpm-store" \
+  "$VIDEOTEXTGEN_ENV/python-builds" \
+  "$VIDEOTEXTGEN_ENV/tools" \
+  "$VIDEOTEXTGEN_ENV/data/nltk" \
+  "$VIDEOTEXTGEN_ENV/models/whisperx" \
+  "$VIDEOTEXTGEN_ENV/playwright-browsers" \
+  "$VIDEOTEXTGEN_ENV/voicebox/models" \
+  "$VIDEOTEXTGEN_ENV/voicebox/data" \
+  "$VIDEOTEXTGEN_ENV/logs" \
+  "$VIDEOTEXTGEN_ENV/tmp"
+
+if [ -z "${_VIDEOTEXTGEN_OLD_PATH+x}" ]; then
+  export _VIDEOTEXTGEN_OLD_PATH="$PATH"
+fi
+
+export PATH="$VIDEOTEXTGEN_ROOT/node_modules/.bin:$VIDEOTEXTGEN_ENV/python/bin:$VIDEOTEXTGEN_ENV/pnpm/node_modules/.bin:$VIDEOTEXTGEN_ENV/node/bin:$VIDEOTEXTGEN_ENV/bin:$PATH"
+export XDG_CONFIG_HOME="$VIDEOTEXTGEN_ENV/xdg/config"
+export XDG_CACHE_HOME="$VIDEOTEXTGEN_ENV/xdg/cache"
+export XDG_DATA_HOME="$VIDEOTEXTGEN_ENV/xdg/data"
+export XDG_STATE_HOME="$VIDEOTEXTGEN_ENV/xdg/state"
+export TMPDIR="$VIDEOTEXTGEN_ENV/tmp"
+export npm_config_cache="$VIDEOTEXTGEN_ENV/cache/npm"
+export PIP_CACHE_DIR="$VIDEOTEXTGEN_ENV/cache/pip"
+export UV_CACHE_DIR="$VIDEOTEXTGEN_ENV/cache/uv"
+export UV_PYTHON_INSTALL_DIR="$VIDEOTEXTGEN_ENV/python-builds"
+export UV_PYTHON_BIN_DIR="$VIDEOTEXTGEN_ENV/bin"
+export UV_PROJECT_ENVIRONMENT="$VIDEOTEXTGEN_ENV/python"
+export UV_TOOL_DIR="$VIDEOTEXTGEN_ENV/tools"
+export UV_TOOL_BIN_DIR="$VIDEOTEXTGEN_ENV/bin"
+export VIRTUAL_ENV="$VIDEOTEXTGEN_ENV/python"
+export PNPM_HOME="$VIDEOTEXTGEN_ENV/pnpm"
+export TORCH_HOME="$VIDEOTEXTGEN_ENV/cache/torch"
+export MPLCONFIGDIR="$VIDEOTEXTGEN_ENV/cache/matplotlib"
+export NUMBA_CACHE_DIR="$VIDEOTEXTGEN_ENV/cache/numba"
+export NLTK_DATA="$VIDEOTEXTGEN_ENV/data/nltk"
+export HF_HOME="$VIDEOTEXTGEN_ENV/cache/huggingface"
+export HUGGINGFACE_HUB_CACHE="$VIDEOTEXTGEN_ENV/cache/huggingface/hub"
+export TRANSFORMERS_CACHE="$VIDEOTEXTGEN_ENV/cache/huggingface/transformers"
+export WHISPERX_MODEL_DIR="$VIDEOTEXTGEN_ENV/models/whisperx"
+export PLAYWRIGHT_BROWSERS_PATH="$VIDEOTEXTGEN_ENV/playwright-browsers"
+export FFMPEG_PATH="$VIDEOTEXTGEN_ENV/bin/ffmpeg"
+export FFMPEG_BINARY="$FFMPEG_PATH"
+export FFPROBE_PATH="$VIDEOTEXTGEN_ENV/bin/ffprobe"
+export BUN_INSTALL_CACHE_DIR="$VIDEOTEXTGEN_ENV/cache/bun"
+export VOICEBOX_MODELS_DIR="$VIDEOTEXTGEN_ENV/voicebox/models"
+export VOICEBOX_DATA_DIR="$VIDEOTEXTGEN_ENV/voicebox/data"
+export OPENCODE_IMAGE_GENERATION_CONFIG="$VIDEOTEXTGEN_ROOT/config/providers/image-generation.json"
+export OPENCODE_IMAGE_GENERATION_DIR="$VIDEOTEXTGEN_ROOT/projects"
+export OPENCODE_DISABLE_EXTERNAL_SKILLS=1
+export OPENCODE_DISABLE_CLAUDE_CODE_SKILLS=1
+
+deactivate_videotextgen() {
+  if [ -n "${_VIDEOTEXTGEN_OLD_PATH+x}" ]; then
+    export PATH="$_VIDEOTEXTGEN_OLD_PATH"
+  fi
+  unset _VIDEOTEXTGEN_OLD_PATH VIDEOTEXTGEN_ROOT VIDEOTEXTGEN_ENV
+  unset XDG_CONFIG_HOME XDG_CACHE_HOME XDG_DATA_HOME XDG_STATE_HOME TMPDIR
+  unset npm_config_cache PIP_CACHE_DIR UV_CACHE_DIR BUN_INSTALL_CACHE_DIR
+  unset UV_PYTHON_INSTALL_DIR UV_PYTHON_BIN_DIR UV_PROJECT_ENVIRONMENT UV_TOOL_DIR UV_TOOL_BIN_DIR
+  unset VIRTUAL_ENV PNPM_HOME TORCH_HOME MPLCONFIGDIR NUMBA_CACHE_DIR NLTK_DATA
+  unset HF_HOME HUGGINGFACE_HUB_CACHE TRANSFORMERS_CACHE WHISPERX_MODEL_DIR
+  unset PLAYWRIGHT_BROWSERS_PATH FFMPEG_PATH FFMPEG_BINARY FFPROBE_PATH
+  unset VOICEBOX_MODELS_DIR VOICEBOX_DATA_DIR
+  unset OPENCODE_IMAGE_GENERATION_CONFIG OPENCODE_IMAGE_GENERATION_DIR
+  unset OPENCODE_DISABLE_EXTERNAL_SKILLS OPENCODE_DISABLE_CLAUDE_CODE_SKILLS
+  unset _VIDEOTEXTGEN_ACTIVATE_FILE
+  unset -f deactivate_videotextgen 2>/dev/null || true
+}

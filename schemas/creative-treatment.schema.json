@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "creative-treatment.schema.json",
+  "title": "Creative Treatment Proposals",
+  "type": "object",
+  "required": ["projectId", "proposals", "recommendedId", "selection"],
+  "properties": {
+    "projectId": { "type": "string" },
+    "proposals": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "visualForm", "pacing", "sceneLanguage", "fitReason", "cost", "risks"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "visualForm": { "type": "string" },
+          "pacing": { "type": "string" },
+          "sceneLanguage": { "type": "array", "items": { "type": "string" } },
+          "fitReason": { "type": "string" },
+          "cost": { "type": "string", "enum": ["low", "medium", "high"] },
+          "risks": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "recommendedId": { "type": "string" },
+    "recommendationReason": { "type": "string" },
+    "selection": { "type": "string", "enum": ["pending", "user-selected", "auto-selected", "user-specified"] },
+    "selectedId": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

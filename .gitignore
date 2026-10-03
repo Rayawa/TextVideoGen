@@ -1,0 +1,36 @@
+# Rebuildable isolated environment (keep only portable activation docs)
+.videoenv/*
+!.videoenv/activate
+!.videoenv/README.md
+
+# Installed dependencies
+node_modules
+.pnpm-store/
+.opencode/node_modules
+vendor/plugins/**/node_modules
+vendor/plugins/**/.git/
+
+# Credentials and local state
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Large/rebuildable project media; manifests, JSON, HTML, images and logs remain trackable
+projects/**/work/renders/
+projects/**/renders/
+projects/**/tmp/
+projects/**/*.wav
+projects/**/*.mp3
+projects/**/*.m4a
+projects/**/*.mov
+projects/**/*.mp4
+projects/**/*.webm
+
+# Platform/editor files
+.DS_Store
+*.swp
+__pycache__/
+*.py[cod]
+*.ses

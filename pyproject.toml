@@ -1,0 +1,17 @@
+[project]
+name = "video-text-gen"
+version = "0.0.0"
+description = "Python runtime for local alignment in the VideoTextGen workspace."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "whisperx==3.8.6",
+]
+
+[tool.video-text-gen]
+isolated-runtime = true
+install-approved = true
+alignment-device = "cpu"
+alignment-compute-type = "int8"
+
+[tool.uv]
+package = false

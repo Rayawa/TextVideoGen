@@ -1,0 +1,2 @@
+{"schemaVersion":1,"eventId":"b77e8342-f2d8-4577-a167-08626cc080c4","timestamp":"2026-10-03T08:01:57.815Z","projectId":"douma-english-efficient-path","stage":"cleanup","status":"started","message":"用户要求清理历史生成产物，保留原始文稿与交付记录。"}
+{"schemaVersion":1,"eventId":"d08911ff-84cc-4a02-b03f-cdf4462c82de","timestamp":"2026-10-03T08:01:57.887Z","projectId":"douma-english-efficient-path","stage":"cleanup","status":"completed","message":"已清理 242 个历史产物文件；原始文稿保留，项目回到 script 草稿状态。"}

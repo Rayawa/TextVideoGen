@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "projectId": "douma-listening-motion-study",
+  "title": "听力牵引阅读：连续镜头样片",
+  "createdAt": "2026-10-02T14:52:49.373Z",
+  "sourceScript": "source/source-script-v1.txt",
+  "aspectRatio": "9:16",
+  "resolution": {
+    "width": 1080,
+    "height": 1920
+  },
+  "status": "draft",
+  "workflowStage": "script",
+  "updatedAt": "2026-10-03T08:01:57.943414Z",
+  "layout": {
+    "source": "source",
+    "plan": "plan",
+    "scenes": "scenes",
+    "work": "work",
+    "qa": "qa",
+    "logs": "logs",
+    "deliveries": "deliveries"
+  },
+  "artifacts": {},
+  "renderHistory": [],
+  "cleanup": {
+    "cleanedAt": "2026-10-03T08:01:57.943414Z",
+    "reason": "用户要求打包前清理历史生成产物",
+    "removedFiles": 97,
+    "preservedSourceFiles": [
+      "source/source-script-v1.txt"
+    ]
+  }
+}

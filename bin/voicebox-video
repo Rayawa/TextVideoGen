@@ -1,0 +1,108 @@
+#!/bin/zsh
+set -eu
+
+PROJECT_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+export VIDEOTEXTGEN_ROOT="$PROJECT_ROOT"
+source "$PROJECT_ROOT/.videoenv/activate"
+
+VOICEBOX_BIN="${VOICEBOX_BIN:-/Applications/Voicebox.app/Contents/MacOS/voicebox-server}"
+VOICEBOX_PORT="${VOICEBOX_PORT:-17493}"
+VOICEBOX_ROOT="$VIDEOTEXTGEN_ENV/voicebox"
+VOICEBOX_PID_FILE="$VOICEBOX_ROOT/voicebox.pid"
+VOICEBOX_LOG_FILE="$VIDEOTEXTGEN_ENV/logs/voicebox-server.log"
+VOICEBOX_CHECK="$PROJECT_ROOT/scripts/check-voicebox.mjs"
+
+mkdir -p "$VOICEBOX_ROOT/data" "$VOICEBOX_ROOT/models" "$VIDEOTEXTGEN_ENV/logs"
+
+if [ ! -x "$VOICEBOX_BIN" ]; then
+  echo "Voicebox server executable not found: $VOICEBOX_BIN" >&2
+  exit 1
+fi
+
+is_running() {
+  [ -f "$VOICEBOX_PID_FILE" ] || return 1
+  VOICEBOX_PID="$(sed -n '1p' "$VOICEBOX_PID_FILE")"
+  [ -n "$VOICEBOX_PID" ] || return 1
+  kill -0 "$VOICEBOX_PID" 2>/dev/null
+}
+
+wait_until_ready() {
+  ATTEMPT=0
+  while [ "$ATTEMPT" -lt 90 ]; do
+    if node "$VOICEBOX_CHECK" --quiet; then
+      return 0
+    fi
+    if ! is_running; then
+      echo "Voicebox exited before becoming ready. See $VOICEBOX_LOG_FILE" >&2
+      return 1
+    fi
+    ATTEMPT=$((ATTEMPT + 1))
+    sleep 2
+  done
+  echo "Voicebox did not become ready within 180 seconds. See $VOICEBOX_LOG_FILE" >&2
+  return 1
+}
+
+start_server() {
+  if node "$VOICEBOX_CHECK" --quiet; then
+    if [ -f "$VOICEBOX_PID_FILE" ] && ! is_running; then
+      rm -f "$VOICEBOX_PID_FILE"
+    fi
+    return
+  fi
+
+  if is_running; then
+    wait_until_ready
+    return
+  fi
+
+  nohup "$VOICEBOX_BIN" \
+    --data-dir "$VOICEBOX_ROOT/data" \
+    --port "$VOICEBOX_PORT" \
+    >"$VOICEBOX_LOG_FILE" 2>&1 &
+  echo "$!" >"$VOICEBOX_PID_FILE"
+  wait_until_ready
+}
+
+case "${1:-status}" in
+  serve)
+    echo "$$" >"$VOICEBOX_PID_FILE"
+    exec "$VOICEBOX_BIN" \
+      --data-dir "$VOICEBOX_ROOT/data" \
+      --port "$VOICEBOX_PORT"
+    ;;
+  start|ensure)
+    start_server
+    node "$VOICEBOX_CHECK"
+    ;;
+  status)
+    node "$VOICEBOX_CHECK"
+    ;;
+  stop)
+    if is_running; then
+      VOICEBOX_PID="$(sed -n '1p' "$VOICEBOX_PID_FILE")"
+      kill "$VOICEBOX_PID"
+      ATTEMPT=0
+      while kill -0 "$VOICEBOX_PID" 2>/dev/null && [ "$ATTEMPT" -lt 20 ]; do
+        ATTEMPT=$((ATTEMPT + 1))
+        sleep 0.25
+      done
+      echo "Voicebox stopped (PID $VOICEBOX_PID)."
+    else
+      if node "$VOICEBOX_CHECK" --quiet; then
+        curl -fsS -X POST "http://127.0.0.1:$VOICEBOX_PORT/shutdown" >/dev/null
+        echo "Voicebox shutdown requested."
+      else
+        echo "Voicebox is not running."
+      fi
+    fi
+    rm -f "$VOICEBOX_PID_FILE"
+    ;;
+  logs)
+    tail -n 120 "$VOICEBOX_LOG_FILE"
+    ;;
+  *)
+    echo "Usage: $0 {start|ensure|status|serve|stop|logs}" >&2
+    exit 2
+    ;;
+esac

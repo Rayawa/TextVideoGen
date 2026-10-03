@@ -1,0 +1,14 @@
+#!/bin/zsh
+set -eu
+PROJECT_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+export VIDEOTEXTGEN_ROOT="$PROJECT_ROOT"
+source "$PROJECT_ROOT/.videoenv/activate"
+cd "$PROJECT_ROOT"
+if [ "${1:-}" = "--align-only" ]; then
+  shift
+  exec "$VIDEOTEXTGEN_ENV/python/bin/python" scripts/align-known-script.py "$@"
+fi
+exec "$VIDEOTEXTGEN_ENV/python/bin/whisperx" "$@" \
+  --device cpu \
+  --compute_type int8 \
+  --model_dir "$VIDEOTEXTGEN_ENV/models/whisperx"

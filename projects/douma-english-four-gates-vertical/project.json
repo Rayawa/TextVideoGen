@@ -1,0 +1,39 @@
+{
+  "projectId": "douma-english-four-gates-vertical",
+  "title": "英语启蒙四关通关总纲",
+  "createdAt": "2026-09-13T15:19:19Z",
+  "sourceScript": "source/source-script-v4.txt",
+  "format": {
+    "vertical": true
+  },
+  "aspectRatio": "9:16",
+  "resolution": {
+    "width": 1080,
+    "height": 1920
+  },
+  "schemaVersion": 2,
+  "status": "draft",
+  "workflowStage": "script",
+  "updatedAt": "2026-10-03T08:01:58.243325Z",
+  "layout": {
+    "source": "source",
+    "plan": "plan",
+    "scenes": "scenes",
+    "work": "work",
+    "qa": "qa",
+    "logs": "logs",
+    "deliveries": "deliveries"
+  },
+  "artifacts": {},
+  "renderHistory": [],
+  "cleanup": {
+    "cleanedAt": "2026-10-03T08:01:58.243325Z",
+    "reason": "用户要求打包前清理历史生成产物",
+    "removedFiles": 4554,
+    "preservedSourceFiles": [
+      "inputs/source-script-v1.txt",
+      "inputs/source-script-v2.txt",
+      "source/source-script-v4.txt"
+    ]
+  }
+}

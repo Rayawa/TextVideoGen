@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "motion-contract.schema.json",
+  "type": "object",
+  "required": ["renderer", "objects", "beats", "probes", "reviewQuestions"],
+  "properties": {
+    "renderer": {"enum": ["dom-svg", "canvas", "webgl", "hybrid"]},
+    "objects": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "role", "continuity"], "properties": {"id": {"type": "string", "minLength": 1}, "role": {"type": "string", "minLength": 1}, "continuity": {"type": "string", "minLength": 1}}}},
+    "beats": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["startMs", "endMs", "meaning", "before", "action", "after", "objectIds", "signature", "cueIndexes"], "properties": {
+      "startMs": {"type": "integer", "minimum": 0}, "endMs": {"type": "integer", "minimum": 1},
+      "meaning": {"type": "string", "minLength": 1}, "before": {"type": "string", "minLength": 1}, "action": {"type": "string", "minLength": 1}, "after": {"type": "string", "minLength": 1},
+      "objectIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}, "signature": {"type": "string", "minLength": 1}, "cueIndexes": {"type": "array", "minItems": 1, "items": {"type": "integer"}}
+    }}},
+    "probes": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["atMs", "meaning", "assertions"], "properties": {
+      "atMs": {"type": "integer", "minimum": 0}, "meaning": {"type": "string", "minLength": 1},
+      "assertions": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["left", "op", "right"], "properties": {"left": {"$ref": "#/$defs/geometryRef"}, "op": {"enum": ["gt", "gte", "lt", "lte", "eq"]}, "right": {"oneOf": [{"type": "number"}, {"$ref": "#/$defs/geometryRef"}]}, "tolerance": {"type": "number", "minimum": 0}, "changeFromMs": {"type": "integer", "minimum": 0}}}}
+    }}},
+    "reviewQuestions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {"geometryRef": {"type": "object", "required": ["objectId", "property"], "properties": {"objectId": {"type": "string", "minLength": 1}, "property": {"enum": ["x", "y", "width", "height", "opacity"]}}, "additionalProperties": false}}
+}

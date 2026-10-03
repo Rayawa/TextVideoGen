@@ -1,0 +1,9 @@
+packages:
+  - .
+
+storeDir: .videoenv/cache/pnpm-store
+confirmModulesPurge: false
+verifyDepsBeforeRun: false
+allowBuilds:
+  esbuild: true
+  ffmpeg-static: true

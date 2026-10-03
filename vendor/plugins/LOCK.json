@@ -1,0 +1,12 @@
+{
+  "plugins": {
+    "opencode-image-generation": {
+      "source": "https://github.com/Krablante/opencode-image-generation.git",
+      "commit": "c7646b52596bcf7e5843b90802a3aed5a114335b",
+      "version": "0.5.0",
+      "license": "MIT",
+      "location": "vendor/plugins/opencode-image-generation",
+      "runtimeDependencyPolicy": "production dependencies installed locally with lifecycle scripts disabled"
+    }
+  }
+}

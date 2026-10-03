@@ -1,0 +1,7 @@
+#!/bin/zsh
+set -eu
+PROJECT_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+export VIDEOTEXTGEN_ROOT="$PROJECT_ROOT"
+source "$PROJECT_ROOT/.videoenv/activate"
+cd "$PROJECT_ROOT"
+exec node scripts/log-event.mjs "$@"

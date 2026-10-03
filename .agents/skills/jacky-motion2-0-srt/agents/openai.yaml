@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jacky Motion 2.0 SRT - 自动录屏版"
+  short_description: "按 SRT 自动播放信息动画，并生成带标题的 B-roll 录屏画框。"
+  default_prompt: "使用 $jacky-motion2-0-srt，把这份口播稿和 SRT 生成可直接录屏的自动播放 HTML，并为真实展示区间生成 B-roll 画框。"

@@ -1,0 +1,40 @@
+#!/bin/zsh
+set -euo pipefail
+
+VTX_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+if [ "$#" -ne 0 ]; then
+  echo "Usage: $0" >&2
+  exit 2
+fi
+
+# Explicit source list keeps private projects and runtime state out of releases.
+VTX_ITEMS=(
+  README.md AGENTS.md .gitignore .gitattributes .python-version
+  package.json pnpm-lock.yaml pnpm-workspace.yaml pyproject.toml uv.lock
+  tsconfig.json opencode.jsonc video.config.yaml
+  bin scripts src config schemas prompts docs assets .agents .opencode vendor
+  .videoenv/activate .videoenv/README.md projects/.gitkeep
+)
+for VTX_ITEM in "${VTX_ITEMS[@]}"; do
+  if [ ! -e "$VTX_ROOT/$VTX_ITEM" ]; then
+    echo "Missing package source: $VTX_ITEM" >&2
+    exit 1
+  fi
+done
+
+mkdir -p "$VTX_ROOT/.videoenv/tmp/packages"
+VTX_PACKAGE_DIR="$(mktemp -d "$VTX_ROOT/.videoenv/tmp/packages/release-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")"
+VTX_ARCHIVE="$VTX_PACKAGE_DIR/VideoTextGen.tar.gz"
+trap 'rm -f "$VTX_ARCHIVE.partial"' EXIT
+
+# Do not follow dependency links; include actual Skill/plugin files, even when
+# they are stored as Git links or have uncommitted local edits.
+COPYFILE_DISABLE=1 tar -czf "$VTX_ARCHIVE.partial" \
+  --exclude='.git' --exclude='node_modules' --exclude='.pnpm-store' \
+  --exclude='.DS_Store' --exclude='__pycache__' --exclude='*.pyc' \
+  --exclude='.env' --exclude='.env.*' --exclude='*.key' --exclude='*.pem' \
+  --exclude='*.log' --exclude='*.ses' --exclude='*.swp' \
+  -C "$VTX_ROOT" "${VTX_ITEMS[@]}"
+mv "$VTX_ARCHIVE.partial" "$VTX_ARCHIVE"
+(cd "$VTX_PACKAGE_DIR" && shasum -a 256 VideoTextGen.tar.gz > VideoTextGen.tar.gz.sha256)
+echo "$VTX_ARCHIVE"

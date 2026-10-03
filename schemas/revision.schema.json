@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "revision.schema.json",
+  "title": "Revision Plan",
+  "type": "object",
+  "required": ["revisionId", "projectId", "request", "changes", "invalidate", "preserve", "status"],
+  "properties": {
+    "revisionId": { "type": "string" },
+    "projectId": { "type": "string" },
+    "request": { "type": "string" },
+    "status": { "type": "string", "enum": ["planned", "approved", "running", "complete", "blocked"] },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "reason"],
+        "properties": {
+          "sceneId": { "type": ["string", "null"] },
+          "target": { "type": "string" },
+          "reason": { "type": "string" },
+          "voiceChanged": { "type": "boolean", "default": false }
+        },
+        "additionalProperties": true
+      }
+    },
+    "invalidate": { "type": "array", "items": { "type": "string" } },
+    "preserve": { "type": "array", "items": { "type": "string" } },
+    "recomputeFrom": { "type": "string" },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

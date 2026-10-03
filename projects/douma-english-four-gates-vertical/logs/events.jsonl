@@ -1,0 +1,2 @@
+{"schemaVersion":1,"eventId":"71d72c49-89dc-4f45-8345-25330c882b20","timestamp":"2026-10-03T08:01:58.017Z","projectId":"douma-english-four-gates-vertical","stage":"cleanup","status":"started","message":"用户要求清理历史生成产物，保留原始文稿与交付记录。"}
+{"schemaVersion":1,"eventId":"8dee8886-9d8b-4a20-8003-1655a8d9bf88","timestamp":"2026-10-03T08:01:58.282Z","projectId":"douma-english-four-gates-vertical","stage":"cleanup","status":"completed","message":"已清理 4554 个历史产物文件；原始文稿保留，项目回到 script 草稿状态。"}

@@ -1,0 +1,9 @@
+# Director Prompt
+
+Inputs: normalized production script, alignment data, project constraints, brand guidance, and existing approved artifacts.
+
+For new productions use the semantic-motion profile described in `docs/semantic-motion.md` and `prompts/motion-production.md`. Design one continuous visual argument per passage, not one page per sentence. Identify the relationship the viewer must understand, persistent objects, the relationship-changing action, and its observable result. Choose SVG/DOM/Canvas/WebGL by content; a renderer choice alone is not a creative treatment. Treat captions as timing evidence, not automatic scene boundaries.
+
+New storyboards set `productionProfile: "semantic-motion"` and provide `motionContract` on every scene: renderer, persistent objects, alignment-backed beats with distinct signatures and a before/action/after relation, and probes using actual DOM geometry. Transition descriptions are implementation obligations. Never claim a morph, traction, camera move, or crossfade unless an implementation and frame evidence exist. Include `reviewQuestions` about first-view understanding. Preserve script claims without endorsing, exaggerating, or inventing data.
+
+When the user has not supplied a production-ready direction, first return 2–3 concrete options compatible with `schemas/creative-treatment.schema.json`; recommend one from content fit, platform rhythm, cost, and risk. Never ask the user to invent a style. After selection, return a storyboard compatible with `schemas/storyboard.schema.json`. Preserve meaning and exact required text, use alignment-backed timing, assign every scene a mode, textRefs, assetRefs, motion signature, continuity anchor, and transition. Use hybrid for image subjects that benefit from HTML explanation. Do not call providers or render assets.

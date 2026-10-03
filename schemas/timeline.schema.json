@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "timeline.schema.json",
+  "title": "Composed Timeline",
+  "type": "object",
+  "required": ["projectId", "version", "durationMs", "tracks"],
+  "properties": {
+    "projectId": { "type": "string" },
+    "version": { "type": "string" },
+    "durationMs": { "type": "integer", "minimum": 0 },
+    "frameRate": { "type": "number", "exclusiveMinimum": 0 },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["trackId", "kind", "clips"],
+        "properties": {
+          "trackId": { "type": "string" },
+          "kind": { "type": "string", "enum": ["video", "voice", "music", "sfx", "captions"] },
+          "clips": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["clipId", "source", "startMs", "endMs"],
+              "properties": {
+                "clipId": { "type": "string" },
+                "sceneId": { "type": "string" },
+                "source": { "type": "string" },
+                "startMs": { "type": "integer", "minimum": 0 },
+                "endMs": { "type": "integer", "minimum": 0 }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

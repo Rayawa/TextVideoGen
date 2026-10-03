@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "storyboard.schema.json",
+  "title": "VideoTextGen Storyboard",
+  "type": "object",
+  "required": ["projectId", "version", "creativeTreatment", "textManifest", "scenes"],
+  "properties": {
+    "productionProfile": {"type": "string", "enum": ["semantic-motion", "legacy-srt"]},
+    "projectId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$" },
+    "version": { "type": "string" },
+    "creativeTreatment": { "type": "string" },
+    "textManifest": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value", "source"],
+        "properties": {
+          "motionContract": {"$ref": "motion-contract.schema.json"},
+          "layoutBoxes": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "object", "required": ["x", "y", "width", "height"], "properties": {"x": {"type": "number"}, "y": {"type": "number"}, "width": {"type": "number", "exclusiveMinimum": 0}, "height": {"type": "number", "exclusiveMinimum": 0}}, "additionalProperties": false}},
+          "value": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["sceneId", "order", "startMs", "endMs", "mode", "visualIntent", "textRefs", "assetRefs", "motionSignature", "transition"],
+        "properties": {
+          "sceneId": { "type": "string" },
+          "order": { "type": "integer", "minimum": 0 },
+          "startMs": { "type": "integer", "minimum": 0 },
+          "endMs": { "type": "integer", "minimum": 1 },
+          "mode": { "type": "string", "enum": ["html", "image", "hybrid", "broll"] },
+          "visualIntent": { "type": "string", "minLength": 1 },
+          "textRefs": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "assetRefs": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "motionSignature": { "type": "string", "minLength": 1 },
+          "continuityAnchor": { "type": ["string", "null"] },
+          "transition": {
+            "type": "object",
+            "required": ["type", "durationMs"],
+            "properties": {
+              "type": { "type": "string", "enum": ["crossfade", "shared-object", "camera", "hold", "semantic-cut"] },
+              "durationMs": { "type": "integer", "minimum": 0, "maximum": 2000 },
+              "reason": { "type": "string" }
+            },
+            "additionalProperties": false
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["assetId", "kind", "purpose", "sceneLocalPath"],
+              "properties": {
+                "assetId": { "type": "string" },
+                "kind": { "type": "string", "enum": ["image", "html-motion", "broll", "audio", "other"] },
+                "purpose": { "type": "string" },
+                "sceneLocalPath": { "type": "string" },
+                "generated": { "type": "boolean" }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "mode": { "enum": ["image", "hybrid"] } } },
+            "then": { "properties": { "assetRefs": { "minItems": 1 } } }
+          },
+          {
+            "if": { "properties": { "transition": { "properties": { "type": { "const": "semantic-cut" } } } } },
+            "then": { "properties": { "transition": { "required": ["reason"] } } }
+          }
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "allOf": [{"if": {"required": ["productionProfile"], "properties": {"productionProfile": {"const": "semantic-motion"}}}, "then": {"required": ["resolution", "captions"], "properties": {"scenes": {"items": {"required": ["motionContract", "layoutBoxes"]}}}}}],
+  "additionalProperties": true
+}

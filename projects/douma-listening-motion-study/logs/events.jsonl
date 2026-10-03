@@ -1,0 +1,2 @@
+{"schemaVersion":1,"eventId":"281b3b97-aa56-4d96-9677-30bf2130be33","timestamp":"2026-10-03T08:01:57.925Z","projectId":"douma-listening-motion-study","stage":"cleanup","status":"started","message":"用户要求清理历史生成产物，保留原始文稿与交付记录。"}
+{"schemaVersion":1,"eventId":"05cd1e5b-e604-459f-aa2a-52d941b8a0f6","timestamp":"2026-10-03T08:01:57.977Z","projectId":"douma-listening-motion-study","stage":"cleanup","status":"completed","message":"已清理 97 个历史产物文件；原始文稿保留，项目回到 script 草稿状态。"}

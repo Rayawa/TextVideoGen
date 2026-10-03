@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "production-script.schema.json",
+  "title": "Production Script",
+  "type": "object",
+  "required": ["projectId", "version", "language", "segments"],
+  "properties": {
+    "projectId": { "type": "string" },
+    "version": { "type": "string" },
+    "language": { "type": "string" },
+    "title": { "type": "string" },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["segmentId", "text", "order"],
+        "properties": {
+          "segmentId": { "type": "string" },
+          "order": { "type": "integer", "minimum": 0 },
+          "text": { "type": "string" },
+          "speaker": { "type": "string" },
+          "notes": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

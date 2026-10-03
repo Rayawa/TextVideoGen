@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scene-assets.schema.json",
+  "title": "Scene Asset Manifest",
+  "type": "object",
+  "required": ["projectId", "sceneId", "assets"],
+  "properties": {
+    "projectId": { "type": "string" },
+    "sceneId": { "type": "string" },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["assetId", "path", "purpose", "source", "generated", "consumedBy"],
+        "properties": {
+          "assetId": { "type": "string" },
+          "path": { "type": "string" },
+          "purpose": { "type": "string" },
+          "source": { "type": "string" },
+          "generated": { "type": "boolean" },
+          "consumedBy": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}

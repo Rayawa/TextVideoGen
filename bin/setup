@@ -1,0 +1,101 @@
+#!/bin/zsh
+set -euo pipefail
+
+VTX_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+VTX_ENV="$VTX_ROOT/.videoenv"
+VTX_NODE_VERSION="24.21.0"
+VTX_PNPM_VERSION="11.19.0"
+VTX_UV_VERSION="0.12.13"
+VTX_PYTHON_VERSION="3.12.14"
+VTX_SKIP_MODEL=0
+
+for VTX_ARG in "$@"; do
+  case "$VTX_ARG" in
+    --check)
+      exec "$VTX_ROOT/bin/check-environment"
+      ;;
+    --skip-voicebox-model)
+      VTX_SKIP_MODEL=1
+      ;;
+    *)
+      echo "Usage: $0 [--check|--skip-voicebox-model]" >&2
+      exit 2
+      ;;
+  esac
+done
+
+if [ "$(uname -s)" != "Darwin" ] || [ "$(uname -m)" != "arm64" ]; then
+  echo "This pinned runtime currently supports macOS Apple Silicon only." >&2
+  exit 1
+fi
+
+mkdir -p "$VTX_ENV/bin" "$VTX_ENV/cache/downloads" "$VTX_ENV/logs" "$VTX_ENV/tmp"
+
+if [ ! -x "$VTX_ENV/node/bin/node" ]; then
+  VTX_NODE_ARCHIVE="$VTX_ENV/cache/downloads/node-v$VTX_NODE_VERSION-darwin-arm64.tar.gz"
+  curl -fL --retry 3 "https://nodejs.org/dist/v$VTX_NODE_VERSION/node-v$VTX_NODE_VERSION-darwin-arm64.tar.gz" -o "$VTX_NODE_ARCHIVE"
+  tar -xzf "$VTX_NODE_ARCHIVE" -C "$VTX_ENV"
+  ln -sfn "node-v$VTX_NODE_VERSION-darwin-arm64" "$VTX_ENV/node"
+fi
+
+if [ ! -x "$VTX_ENV/bin/uv" ]; then
+  VTX_UV_ARCHIVE="$VTX_ENV/cache/downloads/uv-aarch64-apple-darwin.tar.gz"
+  VTX_UV_DIR="$VTX_ENV/tmp/uv-aarch64-apple-darwin"
+  curl -fL --retry 3 "https://github.com/astral-sh/uv/releases/download/$VTX_UV_VERSION/uv-aarch64-apple-darwin.tar.gz" -o "$VTX_UV_ARCHIVE"
+  mkdir -p "$VTX_UV_DIR"
+  tar -xzf "$VTX_UV_ARCHIVE" -C "$VTX_UV_DIR" --strip-components=1
+  install -m 755 "$VTX_UV_DIR/uv" "$VTX_ENV/bin/uv"
+  install -m 755 "$VTX_UV_DIR/uvx" "$VTX_ENV/bin/uvx"
+fi
+
+export VIDEOTEXTGEN_ROOT="$VTX_ROOT"
+source "$VTX_ENV/activate"
+
+if [ ! -x "$VTX_ENV/pnpm/node_modules/.bin/pnpm" ]; then
+  env -u npm_config_store_dir "$VTX_ENV/node/bin/npm" install --prefix "$VTX_ENV/pnpm" "pnpm@$VTX_PNPM_VERSION"
+fi
+
+cd "$VTX_ROOT"
+mkdir -p "$VTX_ENV/deps/root"
+if [ ! -L "$VTX_ROOT/node_modules" ]; then
+  if [ -d "$VTX_ROOT/node_modules" ]; then
+    mv "$VTX_ROOT/node_modules" "$VTX_ENV/deps/root/node_modules"
+  else
+    mkdir -p "$VTX_ENV/deps/root/node_modules"
+  fi
+  ln -s ".videoenv/deps/root/node_modules" "$VTX_ROOT/node_modules"
+fi
+pnpm install --frozen-lockfile
+
+VTX_OPENCODE_DEPS="$VTX_ENV/deps/opencode/node_modules"
+if [ -L "$VTX_ROOT/.opencode/node_modules" ]; then rm "$VTX_ROOT/.opencode/node_modules"; fi
+rm -rf "$VTX_OPENCODE_DEPS"
+env -u npm_config_store_dir npm ci --prefix .opencode
+mkdir -p "$(dirname -- "$VTX_OPENCODE_DEPS")"
+mv "$VTX_ROOT/.opencode/node_modules" "$VTX_OPENCODE_DEPS"
+ln -s "../.videoenv/deps/opencode/node_modules" "$VTX_ROOT/.opencode/node_modules"
+
+VTX_IMAGE_PLUGIN="$VTX_ROOT/vendor/plugins/opencode-image-generation"
+VTX_IMAGE_DEPS="$VTX_ENV/deps/image-plugin/node_modules"
+if [ -L "$VTX_IMAGE_PLUGIN/node_modules" ]; then rm "$VTX_IMAGE_PLUGIN/node_modules"; fi
+rm -rf "$VTX_IMAGE_DEPS"
+env -u npm_config_store_dir npm ci --prefix "$VTX_IMAGE_PLUGIN"
+mkdir -p "$(dirname -- "$VTX_IMAGE_DEPS")"
+mv "$VTX_IMAGE_PLUGIN/node_modules" "$VTX_IMAGE_DEPS"
+ln -s "../../../.videoenv/deps/image-plugin/node_modules" "$VTX_IMAGE_PLUGIN/node_modules"
+
+uv python install "$VTX_PYTHON_VERSION"
+uv sync --frozen
+playwright install chromium
+node scripts/link-runtime-binaries.mjs
+
+VTX_MODEL_DIR="$VTX_ENV/voicebox/models/models--mlx-community--Qwen3-TTS-12Hz-1.7B-Base-bf16"
+if [ "$VTX_SKIP_MODEL" -eq 0 ] && [ ! -f "$VTX_MODEL_DIR/refs/main" ]; then
+  uvx --from huggingface-hub hf download mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16 --cache-dir "$VTX_ENV/voicebox/models"
+fi
+
+"$VTX_ROOT/bin/check-environment"
+if [ "$VTX_SKIP_MODEL" -eq 0 ]; then
+  "$VTX_ROOT/bin/voicebox-video" ensure
+fi
+echo "VideoTextGen environment is ready. Start with ./bin/opencode-video"

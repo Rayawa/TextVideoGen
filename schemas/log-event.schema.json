@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "log-event.schema.json",
+  "title": "VideoTextGen Project Log Event",
+  "type": "object",
+  "required": ["schemaVersion", "eventId", "timestamp", "projectId", "stage", "status"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "eventId": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "projectId": { "type": "string" },
+    "stage": { "type": "string" },
+    "status": { "type": "string", "enum": ["started", "completed", "failed", "provider-called", "review-decision", "delivered", "info"] },
+    "message": { "type": "string" },
+    "details": { "type": "object" }
+  },
+  "additionalProperties": true
+}
